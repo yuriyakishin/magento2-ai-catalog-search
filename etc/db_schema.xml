@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="yu_aicatalogsearch_query" resource="default" engine="innodb" comment="AI Catalog Search Query Log">
+        <column xsi:type="int" name="query_id" unsigned="true" nullable="false" identity="true" comment="Query ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" default="0" comment="Store ID"/>
+        <column xsi:type="varchar" name="query_text" length="255" nullable="false" comment="Query As Typed"/>
+        <column xsi:type="varchar" name="keywords" length="255" nullable="true" comment="Parsed Keywords"/>
+        <column xsi:type="text" name="filters" nullable="true" comment="Validated Parse JSON"/>
+        <column xsi:type="varchar" name="status" length="16" nullable="false" comment="ai|cache|fallback|passthrough"/>
+        <column xsi:type="int" name="result_count" unsigned="true" nullable="true" comment="Total Hits"/>
+        <column xsi:type="varchar" name="provider" length="32" nullable="true" comment="LLM Provider Code"/>
+        <column xsi:type="varchar" name="model" length="64" nullable="true" comment="LLM Model"/>
+        <column xsi:type="int" name="prompt_tokens" unsigned="true" nullable="true" comment="Prompt Tokens"/>
+        <column xsi:type="int" name="completion_tokens" unsigned="true" nullable="true" comment="Completion Tokens"/>
+        <column xsi:type="decimal" name="cost" scale="6" precision="12" nullable="true" comment="Estimated Cost USD"/>
+        <column xsi:type="int" name="duration_ms" unsigned="true" nullable="false" default="0" comment="Parse Duration ms"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="query_id"/>
+        </constraint>
+        <index referenceId="YU_AICATALOGSEARCH_QUERY_STORE_ID_CREATED_AT" indexType="btree">
+            <column name="store_id"/>
+            <column name="created_at"/>
+        </index>
+        <index referenceId="YU_AICATALOGSEARCH_QUERY_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+    </table>
+</schema>

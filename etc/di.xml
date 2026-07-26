@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Yu\AiCatalogSearch\Api\Data\ParsedQueryInterface" type="Yu\AiCatalogSearch\Model\ParsedQuery"/>
+    <preference for="Yu\AiCatalogSearch\Api\Data\SuggestionInterface" type="Yu\AiCatalogSearch\Model\Suggestion"/>
+    <virtualType name="YuAiCatalogSearchLogHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/yu_aicatalogsearch.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="YuAiCatalogSearchLogger" type="Monolog\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">yu_aicatalogsearch</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">YuAiCatalogSearchLogHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Yu\AiCatalogSearch\Model\QueryParser">
+        <arguments>
+            <argument name="logger" xsi:type="object">YuAiCatalogSearchLogger</argument>
+        </arguments>
+    </type>
+    <type name="Yu\AiCatalogSearch\Model\QueryLogger">
+        <arguments>
+            <argument name="logger" xsi:type="object">YuAiCatalogSearchLogger</argument>
+        </arguments>
+    </type>
+    <type name="Yu\AiCatalogSearch\Observer\RedirectSearchResult">
+        <arguments>
+            <argument name="logger" xsi:type="object">YuAiCatalogSearchLogger</argument>
+        </arguments>
+    </type>
+</config>

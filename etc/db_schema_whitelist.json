@@ -1,0 +1,27 @@
+{
+    "yu_aicatalogsearch_query": {
+        "column": {
+            "query_id": true,
+            "store_id": true,
+            "query_text": true,
+            "keywords": true,
+            "filters": true,
+            "status": true,
+            "result_count": true,
+            "provider": true,
+            "model": true,
+            "prompt_tokens": true,
+            "completion_tokens": true,
+            "cost": true,
+            "duration_ms": true,
+            "created_at": true
+        },
+        "index": {
+            "YU_AICATALOGSEARCH_QUERY_STORE_ID_CREATED_AT": true,
+            "YU_AICATALOGSEARCH_QUERY_STATUS": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

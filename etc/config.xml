@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <yu_aicatalogsearch>
+            <general>
+                <enabled>0</enabled>
+                <results_mode>native</results_mode>
+                <min_query_length>3</min_query_length>
+                <parse_timeout>3</parse_timeout>
+                <cache_ttl>604800</cache_ttl>
+                <log_enabled>1</log_enabled>
+            </general>
+        </yu_aicatalogsearch>
+    </default>
+</config>

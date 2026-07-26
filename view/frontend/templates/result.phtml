@@ -1,0 +1,29 @@
+<?php
+/** @var \Yu\AiCatalogSearch\Block\Result $block */
+$queryText = $block->getQueryText();
+$suggestions = $block->getSuggestions();
+?>
+<link rel="stylesheet" href="<?= $block->escapeUrl($block->getViewFileUrl('Yu_AiCatalogSearch::css/result.css')) ?>"/>
+<div class="ai-catalogsearch-result">
+    <?php if ($suggestions !== []): ?>
+        <div class="ai-catalogsearch-suggestions">
+            <?php foreach ($suggestions as $suggestion): ?>
+                <?php
+                $params = ['q' => $queryText];
+                if ($suggestion->getPriceMax() !== null) {
+                    $params['f_price_max'] = $suggestion->getPriceMax();
+                } else {
+                    $params['f_attr'] = $suggestion->getAttributeCode();
+                    $params['f_val'] = $suggestion->getValue();
+                }
+                ?>
+                <a class="ai-catalogsearch-suggestion"
+                   href="<?= $block->escapeUrl($block->getUrl('ai-catalogsearch/result', ['_query' => $params])) ?>">
+                    <?= $block->escapeHtml($suggestion->getLabel()) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?= /* @noEscape */ $block->getProductListHtml() ?>
+</div>

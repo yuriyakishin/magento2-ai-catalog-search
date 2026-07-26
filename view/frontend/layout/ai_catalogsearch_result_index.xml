@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+      layout="1column">
+    <body>
+        <attribute name="class" value="page-products page-with-filter"/>
+        <referenceContainer name="content">
+            <block class="Yu\AiCatalogSearch\Block\Result" name="ai_catalogsearch.result"
+                   template="Yu_AiCatalogSearch::result.phtml" cacheable="false">
+                <block class="Magento\Catalog\Block\Product\ListProduct" name="ai_catalogsearch.result_list"
+                       as="result_list" template="Magento_Catalog::product/list.phtml">
+                    <arguments>
+                        <argument name="viewModel" xsi:type="object">Magento\Catalog\ViewModel\Product\OptionsData</argument>
+                    </arguments>
+                    <block class="Magento\Catalog\Block\Product\ProductList\Toolbar" name="ai_catalogsearch.result_list.toolbar"
+                           template="Magento_Catalog::product/list/toolbar.phtml">
+                        <block class="Magento\Theme\Block\Html\Pager" name="ai_catalogsearch.result_list.toolbar.pager"/>
+                    </block>
+                    <action method="setToolbarBlockName">
+                        <argument name="name" xsi:type="string">ai_catalogsearch.result_list.toolbar</argument>
+                    </action>
+                    <block class="Magento\Framework\View\Element\RendererList" name="ai_catalogsearch.result_list.renderers" as="details.renderers">
+                        <block class="Magento\Framework\View\Element\Template" name="ai_catalogsearch.result_list.renderers.default" as="default"/>
+                        <block class="Magento\Swatches\Block\Product\Renderer\Listing\Configurable"
+                               name="ai_catalogsearch.result_list.renderers.configurable" as="configurable"
+                               template="Magento_Swatches::product/listing/renderer.phtml"
+                               ifconfig="catalog/frontend/show_swatches_in_product_list">
+                            <arguments>
+                                <argument name="configurable_view_model" xsi:type="object">Magento\Swatches\ViewModel\Product\Renderer\Configurable</argument>
+                            </arguments>
+                        </block>
+                    </block>
+                    <block class="Magento\Catalog\Block\Product\ProductList\Item\Container" name="ai_catalogsearch.result_list.addto" as="addto">
+                        <block class="Magento\Wishlist\Block\Catalog\Product\ProductList\Item\AddTo\Wishlist"
+                               name="ai_catalogsearch.result_list.addto.wishlist" as="wishlist" before="compare"
+                               template="Magento_Wishlist::catalog/product/list/addto/wishlist.phtml"/>
+                        <block class="Magento\Catalog\Block\Product\ProductList\Item\AddTo\Compare"
+                               name="ai_catalogsearch.result_list.addto.compare" as="compare"
+                               template="Magento_Catalog::product/list/addto/compare.phtml"/>
+                    </block>
+                </block>
+            </block>
+        </referenceContainer>
+        <referenceContainer name="wishlist_page_head_components">
+            <block class="Magento\Wishlist\Block\AddToWishlist"
+                   name="ai_catalogsearch.wishlist_addto"
+                   template="Magento_Wishlist::addto.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

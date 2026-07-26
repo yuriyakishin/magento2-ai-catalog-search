@@ -1,0 +1,53 @@
+{
+    "name": "yu-dev/module-ai-catalog-search",
+    "description": "Magento 2 AI catalog search: an LLM turns natural-language storefront queries into keywords and filters, applied either to the native search page (Native mode) or a dedicated AI results page with real-facet suggestions (AI mode).",
+    "type": "magento2-module",
+    "keywords": [
+        "magento",
+        "magento2",
+        "ai",
+        "search",
+        "product-search",
+        "catalog-search",
+        "natural-language-search",
+        "nlp",
+        "llm",
+        "openai",
+        "claude",
+        "gemini",
+        "grok",
+        "elasticsearch",
+        "opensearch",
+        "ecommerce"
+    ],
+    "authors": [
+        {
+            "name": "Yuriy Akishin",
+            "email": "yuriy.akishin@gmail.com",
+            "homepage": "https://github.com/yuriyakishin"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/yuriyakishin/magento2-ai-catalog-search/issues",
+        "source": "https://github.com/yuriyakishin/magento2-ai-catalog-search"
+    },
+    "require": {
+        "php": ">=8.1",
+        "magento/framework": "*",
+        "magento/module-catalog-search": "*",
+        "magento/module-search": "*",
+        "yu-dev/module-ai-llm": "*",
+        "yu-dev/module-ai-search-engine": "*"
+    },
+    "license": [
+        "MIT"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Yu\\AiCatalogSearch\\": ""
+        }
+    }
+}

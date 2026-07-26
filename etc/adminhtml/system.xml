@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="yu_aicatalogsearch" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Search Product AI</label>
+            <tab>yu_ai</tab>
+            <resource>Yu_AiCatalogSearch::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable AI Search</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Natural-language queries in the storefront search bar are parsed by your AI provider (configured under LLM AI) into keywords and filters. On any AI error the native search runs unchanged.</comment>
+                </field>
+                <field id="results_mode" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Results Mode</label>
+                    <source_model>Yu\AiCatalogSearch\Model\Config\Source\ResultsMode</source_model>
+                    <comment>Native redirects to the standard search-results page with AI-resolved filters applied via native layered navigation. AI uses a dedicated results page with AI-curated filter suggestions.</comment>
+                </field>
+                <field id="min_query_length" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1">
+                    <label>Minimum Query Length</label>
+                    <frontend_class>validate-digits</frontend_class>
+                    <comment>Queries shorter than this many characters skip AI parsing.</comment>
+                </field>
+                <field id="parse_timeout" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1">
+                    <label>Parse Timeout, seconds</label>
+                    <frontend_class>validate-digits</frontend_class>
+                    <comment>Hard cap on the AI call. On expiry the native search runs unchanged.</comment>
+                </field>
+                <field id="cache_ttl" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1">
+                    <label>Parse Cache Lifetime, seconds</label>
+                    <frontend_class>validate-digits</frontend_class>
+                    <comment>Identical queries reuse the cached AI parse and cost nothing. Default 604800 = 7 days.</comment>
+                </field>
+                <field id="log_enabled" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1">
+                    <label>Log Search Queries</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Stores every search with its AI parse, result count and cost — raw data for future reports.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
