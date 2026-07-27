@@ -10,6 +10,9 @@ use Magento\Catalog\Model\ResourceModel\Product\Attribute\Collection;
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Eav\Model\Config as EavConfig;
 use Magento\Eav\Model\Entity\Attribute\Source\SourceInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\DB\Select;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yu\AiCatalogSearch\Model\AttributeMap;
@@ -121,6 +124,25 @@ class AttributeMapTest extends TestCase
         $attributeMap->resolveOption('color', 'Red', self::STORE_ID);
     }
 
+    public function testGetMapExcludesAttributesBelowTheCoverageThreshold(): void
+    {
+        // 10 total products, 20% floor -> needs coverage on at least 2;
+        // "gender" only has 1 -> below threshold despite having options.
+        [$attributeMap] = $this->makeAttributeMap(
+            [
+                $this->makeAttribute('color', 'Color', ['Red' => 60], true, 10),
+                $this->makeAttribute('gender', 'Gender', ['Women' => 21], true, 13),
+            ],
+            coverageByAttributeId: [10 => 10, 13 => 1],
+            totalProducts: 10
+        );
+
+        $catalog = $attributeMap->getPromptCatalog(self::STORE_ID);
+
+        $this->assertArrayHasKey('color', $catalog);
+        $this->assertArrayNotHasKey('gender', $catalog);
+    }
+
     public function testIsPriceFilterableInSearchReadsAndCachesEavPriceAttribute(): void
     {
         $priceAttribute = $this->createMock(Attribute::class);
@@ -133,7 +155,7 @@ class AttributeMapTest extends TestCase
             ->willReturn($priceAttribute);
 
         $collectionFactory = $this->createMock(CollectionFactory::class);
-        $attributeMap = new AttributeMap($collectionFactory, $eavConfig);
+        $attributeMap = new AttributeMap($collectionFactory, $eavConfig, $this->createMock(ResourceConnection::class));
 
         $this->assertTrue($attributeMap->isPriceFilterableInSearch());
         // Second call must hit the cached bool, not EavConfig again.
@@ -142,9 +164,10 @@ class AttributeMapTest extends TestCase
 
     /**
      * @param array<int, MockObject> $attributes
+     * @param array<int, int>|null $coverageByAttributeId defaults to full coverage for every given attribute
      * @return array{0: AttributeMap, 1: MockObject}
      */
-    private function makeAttributeMap(array $attributes): array
+    private function makeAttributeMap(array $attributes, ?array $coverageByAttributeId = null, int $totalProducts = 10): array
     {
         $collection = $this->createMock(Collection::class);
         $collection->method('addFieldToFilter')->willReturnSelf();
@@ -155,13 +178,46 @@ class AttributeMapTest extends TestCase
 
         $eavConfig = $this->createMock(EavConfig::class);
 
-        return [new AttributeMap($collectionFactory, $eavConfig), $collectionFactory];
+        if ($coverageByAttributeId === null) {
+            $coverageByAttributeId = array_fill_keys(
+                array_map(static fn(MockObject $a): int => (int)$a->getId(), $attributes),
+                $totalProducts
+            );
+        }
+
+        return [
+            new AttributeMap($collectionFactory, $eavConfig, $this->makeResource($coverageByAttributeId, $totalProducts)),
+            $collectionFactory,
+        ];
+    }
+
+    /**
+     * @param array<int, int> $coverageByAttributeId
+     * @return ResourceConnection&MockObject
+     */
+    private function makeResource(array $coverageByAttributeId, int $totalProducts): MockObject
+    {
+        $select = $this->getMockBuilder(Select::class)->disableOriginalConstructor()->getMock();
+        $select->method('from')->willReturnSelf();
+        $select->method('where')->willReturnSelf();
+        $select->method('group')->willReturnSelf();
+
+        $connection = $this->createMock(AdapterInterface::class);
+        $connection->method('select')->willReturn($select);
+        $connection->method('fetchOne')->willReturn($totalProducts);
+        $connection->method('fetchPairs')->willReturn($coverageByAttributeId);
+
+        $resource = $this->createMock(ResourceConnection::class);
+        $resource->method('getConnection')->willReturn($connection);
+        $resource->method('getTableName')->willReturnArgument(0);
+
+        return $resource;
     }
 
     /**
      * @param array<string, int> $options label => option ID
      */
-    private function makeAttribute(string $code, string $label, array $options, bool $searchable): MockObject
+    private function makeAttribute(string $code, string $label, array $options, bool $searchable, int $id = 1): MockObject
     {
         $source = $this->createMock(SourceInterface::class);
         $optionRows = [];
@@ -172,9 +228,10 @@ class AttributeMapTest extends TestCase
 
         $attribute = $this->getMockBuilder(Attribute::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getSource'])
+            ->onlyMethods(['getSource', 'getId'])
             ->getMock();
         $attribute->method('getSource')->willReturn($source);
+        $attribute->method('getId')->willReturn($id);
         $attribute->setData([
             'attribute_code' => $code,
             'store_label' => $label,

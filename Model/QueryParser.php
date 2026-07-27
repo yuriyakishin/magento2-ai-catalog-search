@@ -14,6 +14,7 @@ use Yu\AiLlm\Model\CostCalculator;
 use Yu\AiLlm\Model\LlmProviderException;
 use Yu\AiLlm\Model\ProviderChain;
 use Yu\AiLlm\Model\ProviderConfig;
+use Yu\AiSearchEngine\Model\CategoryMap;
 
 /**
  * Raw query string -> validated ParsedQueryInterface, or null meaning

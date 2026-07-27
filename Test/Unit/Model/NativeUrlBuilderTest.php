@@ -7,7 +7,7 @@ namespace Yu\AiCatalogSearch\Test\Unit\Model;
 use PHPUnit\Framework\TestCase;
 use Yu\AiCatalogSearch\Api\Data\ParsedQueryInterface;
 use Yu\AiCatalogSearch\Model\AttributeMap;
-use Yu\AiCatalogSearch\Model\CategoryMap;
+use Yu\AiSearchEngine\Model\CategoryMap;
 use Yu\AiCatalogSearch\Model\NativeUrlBuilder;
 
 class NativeUrlBuilderTest extends TestCase

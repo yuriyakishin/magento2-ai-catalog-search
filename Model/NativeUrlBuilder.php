@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Yu\AiCatalogSearch\Model;
 
 use Yu\AiCatalogSearch\Api\Data\ParsedQueryInterface;
+use Yu\AiSearchEngine\Model\CategoryMap;
 
 /**
  * ParsedQueryInterface -> native /catalogsearch/result/ query params. Only ever

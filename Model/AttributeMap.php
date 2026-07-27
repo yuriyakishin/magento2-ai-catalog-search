@@ -5,6 +5,7 @@ namespace Yu\AiCatalogSearch\Model;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Eav\Model\Config as EavConfig;
+use Magento\Framework\App\ResourceConnection;
 
 /**
  * Which attributes the AI may target, and how their human labels map to
@@ -17,18 +18,38 @@ use Magento\Eav\Model\Config as EavConfig;
  * way. This is the same set the native quick-search request already
  * declares filters and buckets for, so an enriched request never
  * references an unknown field.
+ *
+ * Having admin-configured options is not enough on its own: an attribute
+ * can be filterable and fully populated with options while actually
+ * being set on only a handful of products. Offering it anyway means
+ * the AI confidently resolves a value the catalog can never match,
+ * silently zeroing out otherwise-correct results — so real product
+ * coverage is required too, same threshold as Yu_AiSearchEngine's
+ * AttributeWhitelist.
  */
 class AttributeMap
 {
     private const PROMPT_OPTIONS_CAP = 40;
+    /** Below this share of the catalog, an attribute is coverage-excluded rather than offered as a filter. */
+    private const MIN_COVERAGE_RATIO = 0.2;
+    private const VALUE_TABLES = [
+        'catalog_product_entity_varchar',
+        'catalog_product_entity_int',
+        'catalog_product_entity_text',
+        'catalog_product_entity_decimal',
+    ];
 
     /** @var array<int, array<string, array{label: string, options: array<string, int>}>> */
     private array $mapByStore = [];
     private ?bool $priceFilterableInSearch = null;
+    /** @var array<int, int>|null attribute_id => number of products with a non-null value */
+    private ?array $coverageByAttributeId = null;
+    private ?int $minCoverage = null;
 
     public function __construct(
         private readonly CollectionFactory $attributeCollectionFactory,
-        private readonly EavConfig $eavConfig
+        private readonly EavConfig $eavConfig,
+        private readonly ResourceConnection $resource
     ) {
     }
 
@@ -124,7 +145,12 @@ class AttributeMap
                     [['eq' => 1], ['gt' => 0]]
                 )
                 ->addFieldToFilter('frontend_input', ['in' => ['select', 'multiselect']]);
+            $coverage = $this->getCoverageByAttributeId();
+            $minCoverage = $this->getMinCoverage();
             foreach ($collection as $attribute) {
+                if (($coverage[(int)$attribute->getId()] ?? 0) < $minCoverage) {
+                    continue;
+                }
                 $attribute->setStoreId($storeId);
                 $options = [];
                 foreach ($attribute->getSource()->getAllOptions(false) as $option) {
@@ -144,5 +170,47 @@ class AttributeMap
             $this->mapByStore[$storeId] = $map;
         }
         return $this->mapByStore[$storeId];
+    }
+
+    /**
+     * @return array<int, int> attribute_id => number of products with a non-null value
+     */
+    private function getCoverageByAttributeId(): array
+    {
+        if ($this->coverageByAttributeId === null) {
+            $connection = $this->resource->getConnection();
+            $coverage = [];
+            foreach (self::VALUE_TABLES as $table) {
+                $select = $connection->select()
+                    ->from(
+                        $this->resource->getTableName($table),
+                        ['attribute_id', 'coverage' => new \Zend_Db_Expr('COUNT(DISTINCT entity_id)')]
+                    )
+                    ->where('value IS NOT NULL')
+                    ->group('attribute_id');
+                foreach ($connection->fetchPairs($select) as $id => $count) {
+                    // One attribute_id lives in exactly one value table (its
+                    // backend_type), so table results never need summing.
+                    $coverage[(int)$id] = (int)$count;
+                }
+            }
+            $this->coverageByAttributeId = $coverage;
+        }
+        return $this->coverageByAttributeId;
+    }
+
+    /**
+     * @return int
+     */
+    private function getMinCoverage(): int
+    {
+        if ($this->minCoverage === null) {
+            $connection = $this->resource->getConnection();
+            $total = (int)$connection->fetchOne(
+                $connection->select()->from($this->resource->getTableName('catalog_product_entity'), [new \Zend_Db_Expr('COUNT(*)')])
+            );
+            $this->minCoverage = max(1, (int)ceil($total * self::MIN_COVERAGE_RATIO));
+        }
+        return $this->minCoverage;
     }
 }

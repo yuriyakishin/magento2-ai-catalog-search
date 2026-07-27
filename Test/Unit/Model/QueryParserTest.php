@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Yu\AiCatalogSearch\Api\Data\ParsedQueryInterfaceFactory;
 use Yu\AiCatalogSearch\Model\AttributeMap;
-use Yu\AiCatalogSearch\Model\CategoryMap;
+use Yu\AiSearchEngine\Model\CategoryMap;
 use Yu\AiCatalogSearch\Model\Config;
 use Yu\AiCatalogSearch\Model\ParsedQuery;
 use Yu\AiCatalogSearch\Model\QueryParser;
