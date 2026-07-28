@@ -7,7 +7,7 @@
                 <enabled>0</enabled>
                 <results_mode>native</results_mode>
                 <min_query_length>3</min_query_length>
-                <parse_timeout>3</parse_timeout>
+                <parse_timeout>20</parse_timeout>
                 <cache_ttl>604800</cache_ttl>
                 <log_enabled>1</log_enabled>
             </general>
