@@ -48,6 +48,11 @@ search simply works as usual, unchanged — the customer won't even notice.
 
 - **Understands attributes, category and price** in a single query, in
   whatever language the customer uses.
+- **Semantic matching in AI mode** — when `Yu_AiSearchEngine`'s
+  semantic search is enabled, product matching also considers meaning,
+  not just literal words: a query like "warm winter jacket" can surface
+  a product described only as "insulated parka". Off by default; see
+  `Yu_AiSearchEngine`'s README for how to turn it on.
 - **Never breaks plain text search** — if the query carries no filters,
   nothing changes compared to regular search.
 - **Query-parse caching** — identical queries don't spend a repeat AI
