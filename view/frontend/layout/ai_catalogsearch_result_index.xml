@@ -14,7 +14,7 @@
                     </arguments>
                     <block class="Magento\Catalog\Block\Product\ProductList\Toolbar" name="ai_catalogsearch.result_list.toolbar"
                            template="Magento_Catalog::product/list/toolbar.phtml">
-                        <block class="Magento\Theme\Block\Html\Pager" name="ai_catalogsearch.result_list.toolbar.pager"/>
+                        <block class="Magento\Theme\Block\Html\Pager" name="product_list_toolbar_pager"/>
                     </block>
                     <action method="setToolbarBlockName">
                         <argument name="name" xsi:type="string">ai_catalogsearch.result_list.toolbar</argument>
