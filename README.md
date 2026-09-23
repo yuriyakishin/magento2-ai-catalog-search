@@ -32,12 +32,19 @@ field in the admin panel:
 
   ![Native mode — the regular search results page with filters already applied](docs/images/search-results-native.png)
 
-- **AI** — the customer lands on a dedicated page with AI-picked
-  suggestion chips above the results ("Only red", "Under $40"), built
-  from the actual product stock in the current result set rather than a
-  static filter tree — so a suggestion never leads to an empty page. The
-  product grid itself stays fully native: colors, swatches, wishlist,
-  compare, sorting — all as usual.
+- **AI** — the customer lands on a dedicated page with refinement chips
+  above the results: categories first ("Men › Tops · 10"), then
+  attributes ("Material: Cotton · 7"), then a price ceiling ("Under $40
+  · 5"), built from the products actually shown rather than a static
+  filter tree. Each chip is a value that really splits the current
+  results - not one nearly all of them share, not one only a single
+  product has. The number on a chip is exactly how many products a
+  click shows: a click narrows the products already on the page, the
+  same way a layered-navigation filter does, instead of starting a new
+  search. Chips stack (each click narrows further) and every active
+  chip has a × that removes just that one. The product grid itself
+  stays fully native: colors, swatches, wishlist, compare, sorting,
+  pagination — all as usual.
 
   ![AI mode — a dedicated page with AI suggestions above the results](docs/images/search-results-AI.png)
 

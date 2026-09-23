@@ -26,3 +26,39 @@
     color: #1979c3;
     text-decoration: none;
 }
+
+.ai-catalogsearch-suggestions-title {
+    display: inline-block;
+    margin: 0 8px 8px 0;
+    color: #666666;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.ai-catalogsearch-suggestion-count {
+    margin-left: 2px;
+    color: #8a8a8a;
+    font-size: 11px;
+}
+
+.ai-catalogsearch-suggestion:hover .ai-catalogsearch-suggestion-count {
+    color: inherit;
+}
+
+.ai-catalogsearch-suggestion--active {
+    border-color: #1979c3;
+    background: #1979c3;
+    color: #ffffff;
+}
+
+.ai-catalogsearch-suggestion--active:hover {
+    border-color: #006bb4;
+    background: #006bb4;
+    color: #ffffff;
+}
+
+.ai-catalogsearch-suggestion-remove {
+    margin-left: 6px;
+    font-size: 14px;
+    line-height: 1;
+}

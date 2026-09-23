@@ -1,25 +1,29 @@
 <?php
 /** @var \Yu\AiCatalogSearch\Block\Result $block */
-$queryText = $block->getQueryText();
 $suggestions = $block->getSuggestions();
+$applied = $block->getAppliedRefinements();
 ?>
 <link rel="stylesheet" href="<?= $block->escapeUrl($block->getViewFileUrl('Yu_AiCatalogSearch::css/result.css')) ?>"/>
 <div class="ai-catalogsearch-result">
-    <?php if ($suggestions !== []): ?>
+    <?php if ($suggestions !== [] || $applied !== []): ?>
         <div class="ai-catalogsearch-suggestions">
+            <span class="ai-catalogsearch-suggestions-title"><?= $block->escapeHtml(__('Refine:')) ?></span>
+            <?php foreach ($applied as $refinement): ?>
+                <a class="ai-catalogsearch-suggestion ai-catalogsearch-suggestion--active"
+                   href="<?= $block->escapeUrl($refinement['url']) ?>"
+                   title="<?= $block->escapeHtmlAttr(__('Remove this filter')) ?>">
+                    <?= $block->escapeHtml($refinement['label']) ?>
+                    <span class="ai-catalogsearch-suggestion-remove" aria-hidden="true">&times;</span>
+                </a>
+            <?php endforeach; ?>
             <?php foreach ($suggestions as $suggestion): ?>
-                <?php
-                $params = ['q' => $queryText];
-                if ($suggestion->getPriceMax() !== null) {
-                    $params['f_price_max'] = $suggestion->getPriceMax();
-                } else {
-                    $params['f_attr'] = $suggestion->getAttributeCode();
-                    $params['f_val'] = $suggestion->getValue();
-                }
-                ?>
                 <a class="ai-catalogsearch-suggestion"
-                   href="<?= $block->escapeUrl($block->getUrl('ai-catalogsearch/result', ['_query' => $params])) ?>">
+                   href="<?= $block->escapeUrl($block->getSuggestionUrl($suggestion)) ?>">
                     <?= $block->escapeHtml($suggestion->getLabel()) ?>
+                    <?php if ($suggestion->getCount() !== null): ?>
+                        <span class="ai-catalogsearch-suggestion-count"
+                              title="<?= $block->escapeHtmlAttr(__('%1 products', (int)$suggestion->getCount())) ?>">&ndash;&nbsp;<?= (int)$suggestion->getCount() ?></span>
+                    <?php endif; ?>
                 </a>
             <?php endforeach; ?>
         </div>

@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Yu\AiCatalogSearch\Api\Data\ParsedQueryInterface" type="Yu\AiCatalogSearch\Model\ParsedQuery"/>
     <preference for="Yu\AiCatalogSearch\Api\Data\SuggestionInterface" type="Yu\AiCatalogSearch\Model\Suggestion"/>
+    <preference for="Yu\AiCatalogSearch\Api\Data\RefinementsInterface" type="Yu\AiCatalogSearch\Model\Refinements"/>
     <virtualType name="YuAiCatalogSearchLogHandler" type="Magento\Framework\Logger\Handler\Base">
         <arguments>
             <argument name="fileName" xsi:type="string">/var/log/yu_aicatalogsearch.log</argument>

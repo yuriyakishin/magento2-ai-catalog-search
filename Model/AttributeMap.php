@@ -26,6 +26,11 @@ use Magento\Framework\App\ResourceConnection;
  * silently zeroing out otherwise-correct results — so real product
  * coverage is required too, same threshold as Yu_AiSearchEngine's
  * AttributeWhitelist.
+ *
+ * The coverage rule only decides what the AI is offered. Turning an
+ * option ID that is already known to be in play (from a facet of real
+ * results, or a clicked suggestion built from one) into labels uses the
+ * full whitelist — resolveLabel() and getAttributeLabel().
  */
 class AttributeMap
 {
@@ -41,6 +46,8 @@ class AttributeMap
 
     /** @var array<int, array<string, array{label: string, options: array<string, int>}>> */
     private array $mapByStore = [];
+    /** @var array<int, array<string, array{label: string, options: array<string, int>}>> without the coverage rule */
+    private array $fullMapByStore = [];
     private ?bool $priceFilterableInSearch = null;
     /** @var array<int, int>|null attribute_id => number of products with a non-null value */
     private ?array $coverageByAttributeId = null;
@@ -118,13 +125,26 @@ class AttributeMap
     }
 
     /**
+     * Store-view label of a whitelisted attribute; null when the
+     * attribute is not in the map (and so can't be filtered by here).
+     */
+    public function getAttributeLabel(string $code, int $storeId): ?string
+    {
+        $map = $this->getFullMap($storeId);
+        if (!isset($map[$code])) {
+            return null;
+        }
+        return trim($map[$code]['label']) !== '' ? $map[$code]['label'] : $code;
+    }
+
+    /**
      * Reverse of resolveOption(): option ID -> label. Used to fold a
      * resolved value back into search keywords when isFilterableInSearch()
      * says native layered nav would ignore it as a URL param anyway.
      */
     public function resolveLabel(string $code, int $optionId, int $storeId): ?string
     {
-        $map = $this->getMap($storeId);
+        $map = $this->getFullMap($storeId);
         if (!isset($map[$code])) {
             return null;
         }
@@ -138,6 +158,22 @@ class AttributeMap
     private function getMap(int $storeId): array
     {
         if (!isset($this->mapByStore[$storeId])) {
+            $coverage = $this->getCoverageByAttributeId();
+            $minCoverage = $this->getMinCoverage();
+            $this->mapByStore[$storeId] = array_filter(
+                $this->getFullMap($storeId),
+                static fn(array $entry): bool => ($coverage[$entry['attribute_id']] ?? 0) >= $minCoverage
+            );
+        }
+        return $this->mapByStore[$storeId];
+    }
+
+    /**
+     * @return array<string, array{label: string, options: array<string, int>, searchable: bool, attribute_id: int}>
+     */
+    private function getFullMap(int $storeId): array
+    {
+        if (!isset($this->fullMapByStore[$storeId])) {
             $map = [];
             $collection = $this->attributeCollectionFactory->create()
                 ->addFieldToFilter(
@@ -145,12 +181,7 @@ class AttributeMap
                     [['eq' => 1], ['gt' => 0]]
                 )
                 ->addFieldToFilter('frontend_input', ['in' => ['select', 'multiselect']]);
-            $coverage = $this->getCoverageByAttributeId();
-            $minCoverage = $this->getMinCoverage();
             foreach ($collection as $attribute) {
-                if (($coverage[(int)$attribute->getId()] ?? 0) < $minCoverage) {
-                    continue;
-                }
                 $attribute->setStoreId($storeId);
                 $options = [];
                 foreach ($attribute->getSource()->getAllOptions(false) as $option) {
@@ -164,12 +195,13 @@ class AttributeMap
                         'label' => (string)$attribute->getStoreLabel($storeId),
                         'options' => $options,
                         'searchable' => (bool)$attribute->getData('is_filterable_in_search'),
+                        'attribute_id' => (int)$attribute->getId(),
                     ];
                 }
             }
-            $this->mapByStore[$storeId] = $map;
+            $this->fullMapByStore[$storeId] = $map;
         }
-        return $this->mapByStore[$storeId];
+        return $this->fullMapByStore[$storeId];
     }
 
     /**

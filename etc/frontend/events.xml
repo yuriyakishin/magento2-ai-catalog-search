@@ -4,4 +4,7 @@
     <event name="controller_action_predispatch_catalogsearch_result_index">
         <observer name="yu_aicatalogsearch_redirect_search_result" instance="Yu\AiCatalogSearch\Observer\RedirectSearchResult"/>
     </event>
+    <event name="catalog_product_collection_load_after">
+        <observer name="yu_aicatalogsearch_apply_matched_variant_images" instance="Yu\AiCatalogSearch\Observer\ApplyMatchedVariantImages"/>
+    </event>
 </config>

@@ -6,9 +6,9 @@ namespace Yu\AiCatalogSearch\Model;
 use Yu\AiCatalogSearch\Api\Data\SuggestionInterface;
 
 /**
- * One clickable refinement: either "this attribute = this value" or
- * "price up to this amount" — never both. Built from real facet data
- * (SuggestionBuilder), never guessed.
+ * One clickable refinement: "this attribute = this value", "in this
+ * category" or "price up to this amount" — exactly one of them. Built
+ * from real facet data (SuggestionBuilder), never guessed.
  */
 class Suggestion implements SuggestionInterface
 {
@@ -16,7 +16,9 @@ class Suggestion implements SuggestionInterface
         private readonly string $label,
         private readonly ?string $attributeCode,
         private readonly ?string $value,
-        private readonly ?float $priceMax
+        private readonly ?float $priceMax,
+        private readonly ?int $count = null,
+        private readonly ?int $categoryId = null
     ) {
     }
 
@@ -50,5 +52,21 @@ class Suggestion implements SuggestionInterface
     public function getPriceMax(): ?float
     {
         return $this->priceMax;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getCount(): ?int
+    {
+        return $this->count;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getCategoryId(): ?int
+    {
+        return $this->categoryId;
     }
 }

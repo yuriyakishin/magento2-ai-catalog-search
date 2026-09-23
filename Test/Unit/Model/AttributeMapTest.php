@@ -143,6 +143,25 @@ class AttributeMapTest extends TestCase
         $this->assertArrayNotHasKey('gender', $catalog);
     }
 
+    public function testLabelsResolveForAttributesBelowTheCoverageThresholdToo(): void
+    {
+        // Coverage only limits what the AI is offered; a value already
+        // seen in real results must still be readable and applicable.
+        [$attributeMap] = $this->makeAttributeMap(
+            [
+                $this->makeAttribute('attr_common', 'Common', ['One' => 60], true, 10),
+                $this->makeAttribute('attr_sparse', 'Sparse', ['Rare' => 21], true, 13),
+            ],
+            coverageByAttributeId: [10 => 10, 13 => 1],
+            totalProducts: 10
+        );
+
+        $this->assertArrayNotHasKey('attr_sparse', $attributeMap->getPromptCatalog(self::STORE_ID));
+        $this->assertSame('Rare', $attributeMap->resolveLabel('attr_sparse', 21, self::STORE_ID));
+        $this->assertSame('Sparse', $attributeMap->getAttributeLabel('attr_sparse', self::STORE_ID));
+        $this->assertNull($attributeMap->getAttributeLabel('attr_unknown', self::STORE_ID));
+    }
+
     public function testIsPriceFilterableInSearchReadsAndCachesEavPriceAttribute(): void
     {
         $priceAttribute = $this->createMock(Attribute::class);
